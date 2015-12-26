@@ -1,0 +1,55 @@
+{ 
+  "Entity": {
+	  	"1": "Знание",
+		"2": "Сила",
+		"3": "Время",
+		"4": "Деньги",
+		"5": "Путь",
+		"6": "Скорость",
+		"7": "Работа",
+		"8": "S",
+		"9": "v",
+		"10": "t",
+		"11": "A",
+		"12": "v * t",
+		"13": "F",
+		"14": "A/F",
+		"15": "Скорость * Время",
+		"16": "Работа/Сила",
+		"17": "A/t",
+		"18": "F * v",
+		"19": "Работа/Деньги",
+		"20": "Знание * Скорость"
+	    },
+
+  "Rels": {
+			"1": [ {"to": "2", "type": "is are"} ],
+			"2": [ {"to": "13", "type": "is are"} ],
+			"3": [ { "to": "4", "type": "is are"},
+		       	   { "to": "10", "type": "is are"} ],
+			"5": [ { "to": "8", "type": "is are"},
+		           { "to": "15", "type": "is are"} ],
+			"6": [ { "to": "9", "type": "is are"} ],
+			"7": [ { "to": "11", "type": "is are"} ],
+			"12": [ { "to": "14", "type": "is are"} ],
+			"17": [ { "to": "18", "type": "is are"} ,
+			  		{ "to": "19", "type": "is are"}]
+	  },
+	
+  "Rules": {
+	       "Logic": ["IF (obj1) is are (obj2) THEN (obj2) is are (obj1)",
+		   			 "IF (obj1) consist of (obj2) THEN (obj2) part of (obj1)",
+		   			 "IF (obj1) part of (obj2) THEN (obj2) consist of (obj1)",
+		   			 "IF (obj1) IN NAME(obj2) THEN (obj2) consist of (obj1)",
+			         "IF (obj1) IN NAME(obj2) THEN (obj1) part of (obj2)",
+		   			 "IF (obj1) is are (obj2) AND (obj2) part of (obj3) THEN (obj1) part of (obj3)",
+			         "IF (obj1) is are (obj2) AND (obj2) consist of (obj3) THEN (obj1) consist of (obj3)",
+		   			 "IF (obj1) consist of (obj2) AND (obj2) is are (obj3) THEN (obj1) consist of (obj3)",
+		   			 "IF (obj1) part of (obj2) AND (obj1) consist of (obj3) THEN (obj2) consist of (obj3)",
+		   			 "IF (obj1) is are (obj2) AND (obj2) is are (obj3) THEN (obj1) is are (obj3)",
+		             "IF (obj1) consist of (obj2, obj3, ...) AND (obj4) consist of (obj2, obj3, ...) THEN (obj1) is are (obj2)",
+		   			 "IF (obj1, obj2) IN NAME (obj3) AND (obj3) is are (obj4) THEN (obj4) is are (obj1, obj2)"]
+           },
+
+  "Target": {"from": "Работа/Деньги", "to": "Знание * Скорость"}
+}
