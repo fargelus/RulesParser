@@ -1,7 +1,5 @@
 __author__ = 'dima'
 
-from rules import Rules
-
 
 class Graph:
     def __init__(self, data_):
@@ -23,7 +21,6 @@ class Graph:
                     self.matrix[i][j] = 0
 
         self.parse_rels()
-        self.add_rules()
 
     def parse_rels(self):
         for key in sorted(self.rels):
@@ -125,11 +122,6 @@ class Graph:
                 if val == self.target["to"]:
                     to = self.entity[str(j+1)]
                     target.write(str_to_find + is_are + to + '\n')
-
-
-
-    def add_rules(self):
-        Rules(self)
 
     def make_new_objects(self, obj):
         self.size += 1

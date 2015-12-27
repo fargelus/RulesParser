@@ -14,7 +14,7 @@ class Data:
         return {self.entity[key]: key for key in self.entity.keys()}
 
     def get_multiple_obj(self):
-        return [int(key) - 1 for key in self.entity if len(self.entity[key]) > 4]
+        return [int(key) - 1 for key in self.entity if self.entity[key].count(' ') >= 1]
 
 
 

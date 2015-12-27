@@ -1,6 +1,5 @@
 __author__ = 'dima'
 
-import random
 
 class Rules:
     @staticmethod
@@ -20,9 +19,12 @@ class Rules:
 
     @staticmethod
     def find_link_type(string_to_parse):
-        link_beg = string_to_parse.find(')')
-        link_end = string_to_parse.find('(', link_beg)
-        link_type = string_to_parse[link_beg + 1:link_end]
+        if '(' in string_to_parse and ')' in string_to_parse:
+            link_beg = string_to_parse.find(')')
+            link_end = string_to_parse.find('(', link_beg)
+            link_type = string_to_parse[link_beg + 1:link_end]
+        else:
+            link_type = string_to_parse
         if link_type.strip() == 'is are':
             link_number = 1
         elif link_type.strip() == 'part of':
@@ -44,50 +46,45 @@ class Rules:
 
         self.rules = graph_.rules
 
-        self.parse_rules()
-
     def print_rules(self):
         for k, v in self.rules.items():
             print(k, ': ', v)
 
     def parse_rules(self):
-        i = 0
-        while i <= 3:
-            # список условий
-            condition = []
+        # список условий
+        condition = []
 
-            # список выводов
-            conclusion = []
-            for each_rule in self.rules.values():
-                for item in each_rule:
-                    vals = item.split('THEN')
-                    condition.append(vals[0])
-                    conclusion.append(vals[1])
+        # список выводов
+        conclusion = []
+        for each_rule in self.rules.values():
+            for item in each_rule:
+                vals = item.split('THEN')
+                condition.append(vals[0])
+                conclusion.append(vals[1])
 
-            for antecedent, conc in zip(condition, conclusion):
-                ant_objects = list()
+        for antecedent, conc in zip(condition, conclusion):
+            ant_objects = list()
 
-                if 'AND' not in antecedent and 'AND' not in conc:
-                    type_link_ant = Rules.find_link_type(antecedent)
-                    ant_objects = Rules.find_objects(antecedent)
-                    type_link_conc = Rules.find_link_type(conc)
-                    conc_objects = Rules.find_objects(conc)
-                    self.make_simple_rules(ant_objects, type_link_ant, conc_objects, type_link_conc)
+            if 'AND' not in antecedent and 'AND' not in conc:
+                type_link_ant = Rules.find_link_type(antecedent)
+                ant_objects = Rules.find_objects(antecedent)
+                type_link_conc = Rules.find_link_type(conc)
+                conc_objects = Rules.find_objects(conc)
+                self.make_simple_rules(ant_objects, type_link_ant, conc_objects, type_link_conc)
 
-                elif 'AND' in antecedent and 'AND' not in conc:
-                    all_objects = antecedent.split('AND')
-                    links = []
-                    for each_side in all_objects:
-                        objects = Rules.find_objects(each_side)
-                        link = Rules.find_link_type(each_side)
-                        ant_objects.append(objects[0])
-                        ant_objects.append(objects[1])
-                        links.append(link)
-                    type_link_conc = Rules.find_link_type(conc)
-                    conc_objects = Rules.find_objects(conc)
+            elif 'AND' in antecedent and 'AND' not in conc:
+                all_objects = antecedent.split('AND')
+                links = []
+                for each_side in all_objects:
+                    objects = Rules.find_objects(each_side)
+                    link = Rules.find_link_type(each_side)
+                    ant_objects.append(objects[0])
+                    ant_objects.append(objects[1])
+                    links.append(link)
+                type_link_conc = Rules.find_link_type(conc)
+                conc_objects = Rules.find_objects(conc)
 
-                    self.make_complex_rules(ant_objects, links, conc_objects, type_link_conc)
-            i += 1
+                self.make_complex_rules(ant_objects, links, conc_objects, type_link_conc)
 
     def make_simple_rules(self, objects_from, type_from, objects_to, type_to):
         vals_pos = []
@@ -153,25 +150,35 @@ class Rules:
 
         else:
             if comma_obj_number == 1:
-                print(type_from)
-                print(type_to)
                 ents = self.graph.entity
                 vals_keys = self.graph.data.get_vals_keys()
-                mult_objects = [key for key in ents if '*' or '/' in ents[key]]
+                mult_objects = sorted(self.graph.data.get_multiple_obj())
                 for item in mult_objects:
-                    val = ents[item]
-                    val_list = list()
-                    if '*' in val:
-                        val_list = val.split('*')
-                    if '/' in val:
-                        val_list = val.split('/')
+                    val = ents[str(item+1)]
+                    val_str = ''.join(c if c.isalpha() else ' ' for c in val)
+                    val_list = val_str.split(' ')
+                    compare_val_list = []
                     for each_item in val_list:
-                        key = int(vals_keys[each_item.strip()]) - 1
-                        for i in range(self.size):
-                            if self.matrix[key][i] == 2:
-                                if str(i + 1) in mult_objects:
-                                    if self.matrix[int(item)-1][i] != 0:
-                                        self.matrix[int(item)-1][i] = type_to
+                        if each_item:
+                            key = int(vals_keys[each_item]) - 1
+                            for i in range(self.size):
+                                if self.matrix[key][i] == 2:
+                                    if i in mult_objects:
+                                        if self.matrix[int(item)-1][i] != 0 and self.matrix[int(item)-1][i] != type_to:
+                                            compare_val_list.append(ents[str(i + 1)])
+
+                    common_list = [compare_val_list[i] for i in range(len(compare_val_list))
+                                   for j in range(len(compare_val_list) - 1, -1, -1)
+                                   if compare_val_list[i] == compare_val_list[j] and i != j]
+
+                    common_list = list(set(common_list))
+                    if common_list:
+                        if len(common_list) == 1:
+                            key = int(vals_keys[common_list[0]]) - 1
+                        else:
+                            key = int(vals_keys[common_list[1]]) - 1
+                        if key != item:
+                            self.matrix[item][key] = type_to
 
             else:
                 if type_from[0] == type_from[1]:
